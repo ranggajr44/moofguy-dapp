@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOOFGUY ECOSYSTEM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: radial-gradient(circle at top, #1e40af 0%, #09090b 100%); min-height: 100vh; color: white; font-family: sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(24, 24, 27, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 35px; height: 35px; border: 3px solid rgba(59, 130, 246, 0.1); border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .green-lamp { height: 10px; width: 10px; background-color: #22c55e; border-radius: 50%; margin-right: 12px; box-shadow: 0 0 15px #22c55e; animation: pulse-green 1.2s infinite; }
+        @keyframes pulse-green { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .active-tab { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .nav-btn { color: #52525b; font-weight: 900; font-size: 10px; transition: 0.3s; padding: 12px 5px; text-align: center; }
+        .nav-btn.active { color: white; border-bottom: 2px solid white; }
+
+        .chart-box { height: 180px; width: 100%; margin-bottom: 20px; position: relative; }
+        .tf-container { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 5px; }
+        .time-btn { flex: 0 0 auto; padding: 5px 10px; border-radius: 8px; font-size: 9px; font-weight: 900; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #71717a; }
+        .time-btn.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+        
+        .coin-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #71717a; }
+        .coin-btn.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+        .done-btn { background: #22c55e !important; color: white !important; border-color: #22c55e !important; }
+
+        #win-notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #22c55e; color: white; padding: 10px 20px; border-radius: 50px; font-weight: 900; font-size: 12px; display: none; z-index: 10000; box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+    </style>
+</head>
+<body class="pb-32">
+
+    <div id="win-notif">NOTIF HERE</div>
+
+    <div id="loading-screen">
+        <h1 class="text-4xl font-black italic mb-4 animate-bounce text-blue-500">MOOFGUY</h1>
+        <div class="spinner"></div>
+    </div>
+
+    <header class="max-w-md mx-auto flex justify-between items-center p-6">
+        <h1 class="text-xl font-black italic">MOOFGUY</h1>
+        <button id="connectBtn" onclick="connect()" class="bg-blue-600 px-4 py-2 rounded-xl text-[10px] font-black">CONNECT WALLET</button>
+    </header>
+
+    <div class="max-w-md mx-auto px-6">
+        
+        <div id="tab-dashboard" class="tab-content active-tab">
+            <div class="glass rounded-[40px] p-10 text-center shadow-2xl mb-6">
+                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2">My Balance</p>
+                <h2 id="displayBal" class="text-7xl font-black mb-8 tracking-tighter text-zinc-800 transition-all">0</h2>
+                
+                <button id="claimBtn" disabled onclick="handleDailyClaim()" class="w-full bg-zinc-800 text-zinc-500 py-5 rounded-2xl font-black text-lg transition-all">
+                    <span id="btnText">CONNECT FIRST</span>
+                </button>
+            </div>
+            
+            <div class="glass rounded-[30px] p-6 border border-blue-500/30 flex items-center justify-center">
+                <span class="green-lamp"></span>
+                <p class="text-white font-black italic text-[12px] uppercase">Token Claim Coming Soon</p>
+            </div>
+        </div>
+
+        <div id="tab-game" class="tab-content mt-6">
+            <div class="glass rounded-[35px] p-6 border border-blue-500/20">
+                <div class="tf-container mb-4">
+                    <button onclick="changeTF('1M', this)" class="time-btn active">1M</button>
+                    <button onclick="changeTF('5M', this)" class="time-btn">5M</button>
+                    <button onclick="changeTF('1H', this)" class="time-btn">1H</button>
+                    <button onclick="changeTF('1D', this)" class="time-btn">1D</button>
+                </div>
+                <div class="flex gap-2 overflow-x-auto mb-4 pb-2">
+                    <button onclick="changeAsset('BTC', 65000, this)" class="coin-btn active"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=024" class="w-3"> BTC</button>
+                    <button onclick="changeAsset('ETH', 3500, this)" class="coin-btn"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=024" class="w-3"> ETH</button>
+                    <button onclick="changeAsset('SOL', 140, this)" class="coin-btn"><img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=024" class="w-3"> SOL</button>
+                </div>
+                <div class="chart-box"><canvas id="tradingChart"></canvas></div>
+                <div class="bg-black/40 rounded-2xl py-4 text-center mb-4 border border-white/5"><p id="coinPrice" class="text-3xl font-black text-white">$0.00</p></div>
+                <div class="flex gap-4">
+                    <button id="longBtn" onclick="playGame('LONG')" class="w-1/2 bg-green-500 py-4 rounded-xl font-black">LONG</button>
+                    <button id="shortBtn" onclick="playGame('SHORT')" class="w-1/2 bg-red-500 py-4 rounded-xl font-black">SHORT</button>
+                </div>
+                <p id="gameStatus" class="text-center text-[10px] font-black mt-4 text-zinc-500 uppercase tracking-widest">READY TO TRADE</p>
+            </div>
+        </div>
+
+        <div id="tab-mission" class="tab-content mt-6">
+            <h2 class="text-3xl font-black italic mb-6 uppercase">Missions</h2>
+            <div class="flex flex-col gap-4">
+                <div class="glass p-5 rounded-3xl flex justify-between items-center border-l-4 border-blue-500">
+                    <div><p class="font-black text-sm">Join Telegram</p><p class="text-blue-400 text-[10px] font-bold">+1,000 MOOF</p></div>
+                    <a href="https://t.me/SI_MOOF_Official" target="_blank" onclick="markDone(this)" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">JOIN</a>
+                </div>
+                <div class="glass p-5 rounded-3xl flex justify-between items-center border-l-4 border-zinc-400">
+                    <div><p class="font-black text-sm">Follow X</p><p class="text-blue-400 text-[10px] font-bold">+1,000 MOOF</p></div>
+                    <a href="https://x.com/MoofGuyBase" target="_blank" onclick="markDone(this)" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">FOLLOW</a>
+                </div>
+                <div class="glass p-5 rounded-3xl flex justify-between items-center border-l-4 border-red-600">
+                    <div><p class="font-black text-sm">Subscribe YouTube</p><p class="text-blue-400 text-[10px] font-bold">+1,000 MOOF</p></div>
+                    <a href="https://www.youtube.com/@MOOFOFFICIAL" target="_blank" onclick="markDone(this)" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px]">SUBSCRIBE</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-friends" class="tab-content mt-6">
+            <div id="refSection" class="hidden">
+                <div class="glass p-8 rounded-[35px] text-center">
+                    <p id="refLink" class="bg-black/40 p-4 rounded-xl text-[9px] mb-4 text-zinc-500 break-all"></p>
+                    <button onclick="copyLink()" class="w-full bg-blue-600 py-4 rounded-2xl font-black">COPY LINK</button>
+                </div>
+            </div>
+            <div id="refLocked" class="glass p-12 rounded-[35px] text-center italic text-zinc-500">Connect wallet to unlock referral.</div>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 w-full glass bg-black/80 z-[100]">
+        <div class="max-w-md mx-auto flex justify-around p-2">
+            <button onclick="switchTab('dashboard', this)" class="nav-btn active">DASHBOARD</button>
+            <button onclick="switchTab('game', this); initChart();" class="nav-btn">GAME</button>
+            <button onclick="switchTab('mission', this)" class="nav-btn">MISSION</button>
+            <button onclick="switchTab('friends', this)" class="nav-btn">FRIENDS</button>
+        </div>
+    </nav>
+
+    <script>
+        let tradingChart, updateInterval, currentPrice = 65000, speed = 1000, volatility = 0.001;
+        let userBalance = 0;
+        let isWalletConnected = false;
+
+        // --- DAILY CLAIM LOGIC (1000 MOOF) ---
+        function handleDailyClaim() {
+            userBalance += 1000;
+            document.getElementById('displayBal').innerText = userBalance.toLocaleString();
+            showNotif("CLAIMED +1,000 MOOF! ");
+            
+            const btn = document.getElementById('claimBtn');
+            const txt = document.getElementById('btnText');
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            txt.innerText = "COMEBACK TOMORROW";
+        }
+
+        // --- GAME LOGIC (WIN 100 MOOF) ---
+        function playGame(side) {
+            if(!isWalletConnected) return alert("Connect Wallet First!");
+            const entryPrice = currentPrice;
+            const statusEl = document.getElementById('gameStatus');
+            const longBtn = document.getElementById('longBtn');
+            const shortBtn = document.getElementById('shortBtn');
+
+            longBtn.disabled = true; shortBtn.disabled = true;
+            statusEl.innerText = `WAITING RESULT...`;
+            statusEl.style.color = "#3b82f6";
+
+            setTimeout(() => {
+                const exitPrice = currentPrice;
+                let isWin = false;
+                if(side === 'LONG' && exitPrice > entryPrice) isWin = true;
+                if(side === 'SHORT' && exitPrice < entryPrice) isWin = true;
+
+                if(isWin) {
+                    userBalance += 100;
+                    document.getElementById('displayBal').innerText = userBalance.toLocaleString();
+                    showNotif("WIN! +100 MOOF ");
+                    statusEl.innerText = "WINNER!";
+                    statusEl.style.color = "#22c55e";
+                } else {
+                    statusEl.innerText = "LOSE! TRY AGAIN";
+                    statusEl.style.color = "#ef4444";
+                }
+                setTimeout(() => {
+                    longBtn.disabled = false; shortBtn.disabled = false;
+                    statusEl.innerText = "READY TO TRADE";
+                    statusEl.style.color = "#71717a";
+                }, 2000);
+            }, 5000);
+        }
+
+        function showNotif(msg) {
+            const notif = document.getElementById('win-notif');
+            notif.innerText = msg;
+            notif.style.display = 'block';
+            setTimeout(() => { notif.style.display = 'none'; }, 3000);
+        }
+
+        // --- FUNGSI DASAR AMAN ---
+        function markDone(el) { setTimeout(() => { el.innerText = "DONE "; el.classList.add('done-btn'); el.style.pointerEvents = "none"; }, 2000); }
+        function initChart() { if (tradingChart) return; const ctx = document.getElementById('tradingChart').getContext('2d'); tradingChart = new Chart(ctx, { type: 'line', data: { labels: Array(30).fill(''), datasets: [{ data: Array(30).fill(currentPrice), borderColor: '#22c55e', borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true, backgroundColor: 'rgba(34, 197, 94, 0.05)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } }, animation: { duration: 600 } } }); startLoop(); }
+        function startLoop() { if(updateInterval) clearInterval(updateInterval); updateInterval = setInterval(() => { let last = tradingChart.data.datasets[0].data[29]; let newVal = last + (Math.random() - 0.5) * (last * volatility); currentPrice = newVal; tradingChart.data.datasets[0].data.push(newVal); tradingChart.data.datasets[0].data.shift(); document.getElementById('coinPrice').innerText = "$" + newVal.toLocaleString(undefined, {minimumFractionDigits: 2}); tradingChart.data.datasets[0].borderColor = (newVal >= last) ? '#22c55e' : '#ef4444'; tradingChart.update('none'); }, speed); }
+        function changeTF(tf, btn) { document.querySelectorAll('.tf-container .time-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); if(tf === '1M') { speed = 1000; volatility = 0.002; } else if(tf === '5M') { speed = 2000; volatility = 0.0015; } else { speed = 5000; volatility = 0.0008; } startLoop(); }
+        function changeAsset(symbol, price, btn) { currentPrice = price; document.querySelectorAll('.coin-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); if(tradingChart) { tradingChart.data.datasets[0].data = Array(30).fill(price); tradingChart.update(); } }
+        function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById('tab-'+id).classList.add('active-tab'); el.classList.add('active'); }
+        
+        async function connect() {
+            if (!window.ethereum) return alert("Gunakan Mises Browser!");
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const addr = await provider.getSigner().getAddress();
+                isWalletConnected = true;
+                userBalance = 10000; // Bonus awal
+                document.getElementById('connectBtn').innerText = addr.slice(0,6)+"...";
+                document.getElementById('displayBal').innerText = userBalance.toLocaleString();
+                document.getElementById('displayBal').classList.replace('text-zinc-800', 'text-white');
+                const btn = document.getElementById('claimBtn');
+                btn.disabled = false;
+                btn.classList.replace('bg-zinc-800', 'bg-blue-600');
+                btn.classList.replace('text-zinc-500', 'text-white');
+                document.getElementById('btnText').innerText = "CLAIM DAILY MOOF";
+                document.getElementById('refSection').classList.remove('hidden');
+                document.getElementById('refLocked').classList.add('hidden');
+                document.getElementById('refLink').innerText = window.location.origin + "?ref=" + addr;
+            } catch(e) { console.error(e); }
+        }
+        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 2000); });
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('refLink').innerText); alert("Copied!"); }
+    </script>
+</body>
+</html>
