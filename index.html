@@ -200,26 +200,23 @@
         function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById('tab-'+id).classList.add('active-tab'); el.classList.add('active'); }
         
         async function connect() {
-            if (!window.ethereum) return alert("Gunakan Mises Browser!");
-            try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                const addr = await provider.getSigner().getAddress();
-                isWalletConnected = true;
-                userBalance = 10000; // Bonus awal
-                document.getElementById('connectBtn').innerText = addr.slice(0,6)+"...";
-                document.getElementById('displayBal').innerText = userBalance.toLocaleString();
-                document.getElementById('displayBal').classList.replace('text-zinc-800', 'text-white');
-                const btn = document.getElementById('claimBtn');
-                btn.disabled = false;
-                btn.classList.replace('bg-zinc-800', 'bg-blue-600');
-                btn.classList.replace('text-zinc-500', 'text-white');
-                document.getElementById('btnText').innerText = "CLAIM DAILY MOOF";
-                document.getElementById('refSection').classList.remove('hidden');
-                document.getElementById('refLocked').classList.add('hidden');
-                document.getElementById('refLink').innerText = window.location.origin + "?ref=" + addr;
-            } catch(e) { console.error(e); }
+    if (window.ethereum) {
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const addr = accounts[0];
+            isWalletConnected = true;
+            userBalance = 10000; 
+            document.getElementById('connectBtn').innerText = addr.slice(0,6) + "...";
+            document.getElementById('displayBal').innerText = userBalance.toLocaleString();
+            alert("Koneksi Berhasil! Saldo MOOFGUY Aktif di BASE.");
+        } catch (e) {
+            alert("Koneksi dibatalkan Bos!");
         }
+    } else {
+        alert("Gunakan Mises Browser & Pastikan OKX Wallet Aktif!");
+    }
+        }
+        
         window.addEventListener('load', () => { setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 2000); });
         function copyLink() { navigator.clipboard.writeText(document.getElementById('refLink').innerText); alert("Copied!"); }
     </script>
