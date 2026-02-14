@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOOFGUY - OFFICIAL DAPP</title>
+    <title>MOOFGUY OFFICIAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: radial-gradient(circle at top, #1e40af 0%, #09090b 100%); min-height: 100vh; color: white; font-family: sans-serif; overflow: hidden; }
@@ -11,37 +11,34 @@
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .active-tab { display: block; }
         
-        /* LOADING SCREEN STYLE */
+        /* LOADING SCREEN BULAT MUTER */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #09090b; display: flex; flex-direction: column;
             justify-content: center; items-center; z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s;
         }
-        .loader-logo { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 6px solid rgba(255, 255, 255, 0.1);
+            border-top: 6px solid #3b82f6; /* Warna Biru */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="pb-32">
 
     <div id="loader">
-        <div class="loader-logo mb-4">
-            <h1 class="text-5xl font-black italic text-blue-500 tracking-tighter">MOOFGUY</h1>
-        </div>
-        <div class="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden">
-            <div class="h-full bg-blue-500 animate-[loading_2s_ease-in-out]"></div>
-        </div>
-        <p class="mt-4 text-[10px] font-bold text-zinc-500 tracking-[0.3em] uppercase">Connecting to Base...</p>
+        <div class="spinner mb-6"></div>
+        <h1 class="text-3xl font-black italic text-blue-500 tracking-tighter animate-pulse">MOOFGUY</h1>
+        <p class="mt-4 text-[10px] font-bold text-zinc-500 tracking-[0.3em] uppercase">Syncing Blockchain...</p>
     </div>
-
-    <style>
-        @keyframes loading { 0% { width: 0%; } 100% { width: 100%; } }
-    </style>
 
     <header class="p-6 flex justify-between items-center sticky top-0 z-50 glass mb-4">
         <h1 class="text-xl font-black italic text-blue-400">MOOFGUY</h1>
-        <button id="connectBtn" onclick="connect()" class="bg-blue-600 px-4 py-2 rounded-xl text-[10px] font-black shadow-lg">
+        <button id="connectBtn" onclick="connect()" class="bg-blue-600 px-4 py-2 rounded-xl text-[10px] font-black shadow-lg active:scale-95 transition-all">
             CONNECT WALLET
         </button>
     </header>
@@ -50,24 +47,24 @@
         
         <div id="tab-home" class="tab-content active-tab">
             <div class="glass rounded-[40px] p-10 text-center shadow-2xl mb-6">
-                <p class="text-zinc-500 text-[10px] font-black mb-2 uppercase">Real ETH Balance</p>
-                <h2 id="displayBal" class="text-6xl font-black mb-8 tracking-tighter text-zinc-800">0.0000</h2>
+                <p class="text-zinc-500 text-[10px] font-black mb-2 uppercase tracking-widest">ETH Balance</p>
+                <h2 id="displayBal" class="text-6xl font-black mb-8 tracking-tighter text-zinc-800 transition-all">0.0000</h2>
                 
                 <button id="claimBtn" disabled onclick="startClaim()" class="w-full bg-zinc-800 py-5 rounded-[25px] font-black text-sm shadow-xl active:scale-95 transition-all mb-4">
                     <span id="btnText">CONNECT WALLET FIRST</span>
                 </button>
                 
-                <p id="timerText" class="text-[11px] text-blue-400 font-bold hidden uppercase">Next Claim: <span id="countdown">24:00:00</span></p>
+                <p id="timerText" class="text-[11px] text-blue-400 font-bold hidden">RE-CLAIM IN: <span id="countdown">24:00:00</span></p>
             </div>
             
-            <div class="glass rounded-3xl p-4 flex items-center justify-between">
+            <div class="glass rounded-3xl p-4 flex items-center justify-between border-blue-500/30">
                 <p class="text-[10px] font-bold uppercase italic">Daily Reward: 5,000 MOOF</p>
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             </div>
         </div>
 
         <div id="tab-mission" class="tab-content">
-            <h3 class="font-black text-xl mb-6 italic text-blue-400">EARN MORE MOOF</h3>
+            <h3 class="font-black text-xl mb-6 italic text-blue-400 uppercase">Daily Tasks</h3>
             <div class="space-y-4">
                 <div class="glass p-5 rounded-3xl flex justify-between items-center border-l-4 border-white">
                     <div><p class="font-bold text-sm">Follow MoofGuy X</p><p class="text-[10px] text-blue-400">+1,000 MOOF</p></div>
@@ -77,43 +74,46 @@
                     <div><p class="font-bold text-sm">Join Telegram</p><p class="text-[10px] text-blue-400">+1,500 MOOF</p></div>
                     <button onclick="window.open('https://t.me/SI_MOOF_Official')" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-black text-[10px]">JOIN</button>
                 </div>
+                <div class="glass p-5 rounded-3xl flex justify-between items-center border-l-4 border-red-600">
+                    <div><p class="font-bold text-sm">YouTube Official</p><p class="text-[10px] text-blue-400">+2,000 MOOF</p></div>
+                    <button onclick="window.open('https://www.youtube.com/@MOOFOFFICIAL')" class="bg-red-600 text-white px-4 py-2 rounded-xl font-black text-[10px]">WATCH</button>
+                </div>
             </div>
         </div>
 
         <div id="tab-friends" class="tab-content">
             <div class="glass rounded-[35px] p-8 text-center">
-                <h3 class="font-black text-xl mb-2 italic uppercase">Referral</h3>
-                <p class="text-xs text-zinc-400 mb-8">Share link lo & get 10% bonus!</p>
-                <div class="bg-zinc-900/80 p-5 rounded-2xl border border-dashed border-zinc-700 mb-6 text-center">
-                    <p id="refLink" class="text-[10px] text-blue-400 font-bold">https://moofguy.netlify.app/ref?id=USER_LO</p>
+                <h3 class="font-black text-xl mb-2 italic">INVITE FRIENDS</h3>
+                <p class="text-xs text-zinc-400 mb-8 leading-relaxed">Copy link lo & dapet 10% bonus tiap temen lo claim!</p>
+                <div class="bg-zinc-900/80 p-5 rounded-2xl border border-dashed border-zinc-700 mb-6">
+                    <p id="refLink" class="text-[10px] text-blue-400 font-bold break-all text-center">https://moofguy.netlify.app/ref?id=USER_LO</p>
                 </div>
-                <button onclick="copyRef()" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-xs shadow-lg">SALIN LINK</button>
+                <button onclick="copyRef()" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-xs shadow-lg active:scale-95 transition-all">SALIN LINK</button>
             </div>
         </div>
 
     </main>
 
     <nav class="fixed bottom-8 left-6 right-6 glass rounded-full p-2 flex justify-around items-center shadow-2xl z-50">
-        <button onclick="switchTab('home')" class="flex-1 py-3 text-[9px] font-black uppercase tracking-tighter">Home</button>
+        <button onclick="switchTab('home')" class="flex-1 py-3 text-[9px] font-black uppercase">Home</button>
         <button onclick="switchTab('mission')" class="flex-1 py-3 text-[9px] font-black uppercase border-x border-zinc-800">Mission</button>
         <button onclick="switchTab('friends')" class="flex-1 py-3 text-[9px] font-black uppercase">Friends</button>
     </nav>
 
     <script>
-        // 1. LOADING LOGIC
+        // LOADING SCREEN LOGIC
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 loader.style.opacity = '0';
-                loader.style.visibility = 'hidden';
-                document.body.style.overflow = 'auto';
-            }, 2500); // 2.5 Detik loading
+                setTimeout(() => { loader.style.display = 'none'; document.body.style.overflow = 'auto'; }, 500);
+            }, 2000); // Muter selama 2 detik
         });
 
         let walletConnected = false;
         let claimTimer = null;
 
-        // 2. WEB3 CONNECT
+        // CONNECT WALLET ASLI
         async function connect() {
             if (window.ethereum) {
                 try {
@@ -128,26 +128,24 @@
 
                     walletConnected = true;
                     checkClaimStatus();
-                    alert("Wallet Konek, Bos!");
-                } catch (e) { alert("Dibatalkan!"); }
-            } else { alert("Gunakan Mises Browser!"); }
+                    alert("Dompet Konek!");
+                } catch (e) { alert("Dibatalkan user!"); }
+            } else { alert("Gunakan Mises Browser & Pasang OKX Wallet!"); }
         }
 
-        // 3. 24H CLAIM LOGIC
+        // TIMER 24 JAM LOGIC
         function checkClaimStatus() {
             const lastClaim = localStorage.getItem('lastClaimMoof');
-            const claimBtn = document.getElementById('claimBtn');
-            const btnText = document.getElementById('btnText');
-
             if (lastClaim) {
                 const now = new Date().getTime();
                 const nextClaim = parseInt(lastClaim) + (24 * 60 * 60 * 1000);
                 if (now < nextClaim) { lockClaim(nextClaim); return; }
             }
             if (walletConnected) {
+                const claimBtn = document.getElementById('claimBtn');
                 claimBtn.disabled = false;
                 claimBtn.classList.replace('bg-zinc-800', 'bg-blue-600');
-                btnText.innerText = "CLAIM DAILY MOOF";
+                document.getElementById('btnText').innerText = "CLAIM DAILY MOOF";
             }
         }
 
@@ -191,7 +189,7 @@
 
         function copyRef() {
             navigator.clipboard.writeText(document.getElementById('refLink').innerText);
-            alert("Link Referral Tersalin!");
+            alert("Link Referral disalin!");
         }
     </script>
 </body>
